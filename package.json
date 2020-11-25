@@ -1,5 +1,5 @@
 {
-  "name": "plantumljs",
+  "name": "tplantviewer",
   "version": "0.0.1",
   "main": "dist/bundle.js",
   "license": "MIT",

@@ -190,7 +190,7 @@ window.plantumljs = {
     var roots = {};
     var defs: any = {};
     var i = 0;
-    [...plant.matchAll(parser)].forEach(array1 => {
+    [...plantuml.matchAll(parser)].forEach(array1 => {
       let methods = [];
       let attributes = [];
       if (i++ !== 11) {
@@ -339,7 +339,7 @@ window.plantumljs = {
       });
     });
 
-    var graphBBox = joint.layout.DirectedGraph.layout(graph, {
+    return joint.layout.DirectedGraph.layout(graph, {
       nodeSep: 50,
       edgeSep: 80,
       rankDir: "TB",

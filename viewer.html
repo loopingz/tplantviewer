@@ -1,38 +1,65 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
+  <head>
+    <meta charset="utf-8" />
 
-        <title>PlantUML Viewer</title>
+    <title>TPlantUML Viewer</title>
 
-        <link rel="stylesheet" type="text/css" href="./node_modules/jointjs/dist/joint.css" />
-        <style>
-            .joint-type-uml-composition .marker-target {
-    fill: #4a4e69;
-    stroke: #4a4e69;
-}
-.joint-link:hover .marker-arrowheads,
-.joint-link:hover .link-tools {
-   opacity: 0;
-}
-        </style>
-    </head>
-    <body>
-        <div id="buttons">
+    <link rel="stylesheet" type="text/css" href="./node_modules/jointjs/dist/joint.css" />
+    <style>
+      #source {
+        width: 100%;
+        height: 100%;
+      }
+      #source > textarea {
+        width: 100%;
+        height: calc(100vh - 41px);
+      }
+      #buttons {
+        height: 25px;
+      }
+      .joint-type-uml-composition .marker-target {
+        fill: #4a4e69;
+        stroke: #4a4e69;
+      }
+      .joint-link:hover .marker-arrowheads,
+      .joint-link:hover .link-tools {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="buttons">
+      <button onclick="viewSource()">View source</button><button onclick="viewDiagram()">View diagram</button
+      ><button onclick="exportPNG()">Export to PNG</button><button onclick="exportSVG()">Export to SVG</button
+      ><button style="margin-left: 50px" onclick="setSimple()">Show simple example</button
+      ><button onclick="setComplex()">Show complex example</button>
+    </div>
+    <div>
+      <div id="source">
+        <textarea> </textarea>
+      </div>
+      <div id="diagram"></div>
+    </div>
+    <script src="./dist/bundle.js"></script>
+    <script>
+      function viewSource() {
+        document.getElementById("source").style.display = "block";
+        document.getElementById("diagram").style.display = "none";
+      }
+      function viewDiagram() {
+        document.getElementById("source").style.display = "none";
+        document.getElementById("diagram").style.display = "block";
+        window.plantumljs.graph = window.plantumljs.draw(
+          document.getElementById("diagram"),
+          document.getElementsByTagName("textarea")[0].value,
+          {}
+        );
+      }
 
-        </div>
-        <div>
-            <div id="source">
-                <textarea>
-                    
-                </textarea>
-            </div>
-            <div id="paper"></div>
-        </div>
-        <script src="./dist/bundle.js"></script>
-        <script>
-
-var plant = `@startuml
+      function setComplex() {
+        const puml = `
+@startuml
 class OwnerPolicy {
     +_user: any
     +public: boolean
@@ -856,9 +883,92 @@ class FileStore<T extends CoreModel> extends Store {
     +__clean(): Promise<void>
     +{static} getModda(): ModdaDefinition
 }
-@enduml`;
+@enduml
+`;
+        document.getElementsByTagName("textarea")[0].value = puml;
+        viewDiagram();
+      }
 
-window.plantumljs.draw(document.getElementById("paper"), plant, {});
-        </script>
-    </body>
+      function setSimple() {
+        const puml = `
+@startuml
+interface Licensed {
+    +plateId: string
+}
+abstract class Vehicle {
+    +capacity: number
+    +weight: number
+    +moveTo(x: Number, y: Number): void
+    +{abstract} hasWheel(): boolean
+}
+class Car extends Vehicle implements Licensed {
+    +plateId: string
+    +hasWheel(): boolean
+}
+class DirtBike {
+    +hasWheel(): boolean
+}
+class Plane extends Vehicle implements Licensed {
+    +plateId: string
+    +hasWheel(): boolean
+}
+@enduml
+`;
+        document.getElementsByTagName("textarea")[0].value = puml;
+        viewDiagram();
+      }
+      function exportPNG() {
+        viewDiagram();
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("width", window.plantumljs.graph.width);
+        canvas.setAttribute("height", window.plantumljs.graph.height);
+
+        var DOMURL = window.URL || window.webkitURL || window;
+
+        var img = new Image();
+        var url = getSvgAsUrl();
+
+        img.onload = function () {
+          console.log(img.width, img.height);
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          DOMURL.revokeObjectURL(url);
+          var png_img = canvas.toDataURL("image/png");
+          downloadUrl(png_img, "png");
+        };
+
+        img.src = url;
+      }
+
+      function downloadUrl(url, type) {
+        if (!url) {
+          url = getSvgAsUrl();
+        }
+        if (!type) {
+          type = "svg";
+        }
+        var downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = "tplantviewer." + type;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+
+      function getSvgAsUrl() {
+        const svgEl = document.getElementsByTagName("svg")[0];
+        // Based on https://stackoverflow.com/questions/23218174/how-do-i-save-export-an-svg-file-after-creating-an-svg-with-d3-js-ie-safari-an
+        svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        var svgData = svgEl.outerHTML.replace(/&nbsp;/g, " ");
+        var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+        var svgBlob = new Blob([preface, svgData], { type: "image/svg+xml;charset=utf-8" });
+        return URL.createObjectURL(svgBlob);
+      }
+
+      function exportSVG() {
+        viewDiagram();
+        downloadUrl(getSvgAsUrl());
+      }
+    </script>
+  </body>
 </html>

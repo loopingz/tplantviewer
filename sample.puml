@@ -1,0 +1,22 @@
+@startuml
+interface Licensed {
+    +plateId: string
+}
+abstract class Vehicle {
+    +capacity: number
+    +weight: number
+    +moveTo(x: Number, y: Number): void
+    +{abstract} hasWheel(): boolean
+}
+class Car extends Vehicle implements Licensed {
+    +plateId: string
+    +hasWheel(): boolean
+}
+class DirtBike {
+    +hasWheel(): boolean
+}
+class Plane extends Vehicle implements Licensed {
+    +plateId: string
+    +hasWheel(): boolean
+}
+@enduml
