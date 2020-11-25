@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>TPlantUML Viewer</title>
+
+    <link rel="stylesheet" type="text/css" href="./joint.css" />
+    <style>
+      #source {
+        width: 100%;
+        height: 100%;
+      }
+      #source > textarea {
+        width: 100%;
+        height: calc(100vh - 41px);
+      }
+      #buttons {
+        height: 25px;
+      }
+      .joint-type-uml-composition .marker-target {
+        fill: #4a4e69;
+        stroke: #4a4e69;
+      }
+      .joint-link:hover .marker-arrowheads,
+      .joint-link:hover .link-tools {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="buttons">
+      <button onclick="viewSource()">View source</button><button onclick="viewDiagram()">View diagram</button
+      ><button onclick="exportPNG()">Export to PNG</button><button onclick="exportSVG()">Export to SVG</button
+      ><button style="margin-left: 50px" onclick="setSimple()">Show simple example</button
+      ><button onclick="setComplex()">Show complex example</button>
+    </div>
+    <div>
+      <div id="source">
+        <textarea> </textarea>
+      </div>
+      <div id="diagram"></div>
+    </div>
+    <script src="./bundle.js"></script>
+    <script>
+      function viewSource() {
+        document.getElementById("source").style.display = "block";
+        document.getElementById("diagram").style.display = "none";
+      }
+      function viewDiagram() {
+        document.getElementById("source").style.display = "none";
+        document.getElementById("diagram").style.display = "block";
+        window.plantumljs.graph = window.plantumljs.draw(
+          document.getElementById("diagram"),
+          document.getElementsByTagName("textarea")[0].value,
+          {}
+        );
+      }
+
+      function setComplex() {
+        const puml = `
+@startuml
+class OwnerPolicy {
+    +_user: any
+    +public: boolean
+    +uuid: string
+    +canCreate(ctx: Context): Promise<this>
+    +getOwner(): any
+    +canAct(ctx: Context, action: string): Promise<this>
+    +canUpdate(ctx: Context): Promise<this>
+    +canGet(ctx: Context): Promise<this>
+    +canDelete(ctx: Context): Promise<this>
+}
+class User extends CoreModel {
+    -__password: string
+    -_lastPasswordRecovery: number
+    -_roles: string[]
+    -_groups: string[]
+    -_idents: any[]
+    +getGroups(): string[]
+    +getRoles(): string[]
+    +addRole(role: string): void
+    +hasRole(role: string): boolean
+    +removeRole(role: string): void
+    +addGroup(group: string): void
+    +inGroup(group: string): boolean
+    +removeGroup(group: string): void
+    +lastPasswordRecoveryBefore(timestamp: number): boolean
+    +getPassword(): string
+    +setPassword(password: string): void
+}
+class SecureCookie {
+    +_name: string
+    +_algo: string
+    +_secret: string
+    +_changed: boolean
+    +_raw: string
+    +getRaw(name: any, cookies: any): string
+    +getProxy(): this
+    +destroy(): void
+    +toJSON(): any
+    +save(ctx: Context): void
+    +sendCookie(ctx: any, name: any, value: any, params: any): void
+    +needSave(): boolean
+}
+class SessionCookie extends SecureCookie {
+    +userId: string
+    +identUsed: string
+    +getIdentUsed(): string
+    +getUserId(): string
+    +logout(): void
+    +login(userId: any, identUsed: any): void
+    +isLogged(): boolean
+    +needSave(): boolean
+    +init(): Promise<void>
+}
+class ClientInfo extends Map {
+    +ip: string
+    +userAgent: string
+    +locale: string
+    +referer: string
+}
+class HttpContext {
+    +host: string
+    +method: HttpMethodType
+    +uri: string
+    +protocol: string
+    +port: number
+    +headers: any
+    +root: string
+    +origin: string
+    +body: any
+    +cookies: any
+    +files: any[]
+    +prefix: string
+    +setPrefix(prefix: string): void
+    +getRelativeUri(): string
+    +getUrl(): string
+    +getCookies(): any
+    +getPort(): number
+    +getHost(): string
+    +getMethod(): HttpMethodType
+    +getProtocol(): string
+    +getBody(): any
+    +getHeaders(): any
+    +getHeader(name: string): string
+    +setBody(body: any): void
+    +getAbsoluteUrl(uri?: string): string
+}
+class Cookie {
+    +name: string
+    +value: string
+    +options: any
+}
+class Context extends EventEmitter {
+    +clientInfo: ClientInfo
+    #_body: any
+    #_outputHeaders: Map<string, string>
+    #_webda: Core
+    +statusCode: number
+    +_cookie: Map<string, Cookie>
+    +headers: Map<string, string>
+    +_route: any
+    +_buffered: boolean
+    #session: SessionCookie
+    +_ended: Promise<any>
+    +_stream: any
+    +_promises: Promise<any>[]
+    +_executor: Service
+    +_flushHeaders: boolean
+    +_sanitized: any
+    #_params: any
+    #_pathParams: any
+    #_serviceParams: any
+    +files: any[]
+    #_http: HttpContext
+    -global: boolean
+    +isGlobal(): boolean
+    +_write(chunk: any, enc: any, next: any): boolean
+    +setHttpContext(httpContext: HttpContext): void
+    +reinit(): void
+    +getHttpContext(): HttpContext
+    +getResponseHeaders(): any
+    +getRequestParameters(): any
+    +parameter(name: string): any
+    +getParameters(): any
+    -processParameters(): void
+    +getSession(): SessionCookie
+    +getServiceParameters(): any
+    +getPathParameters(): any
+    +setServiceParameters(params: any): void
+    +setPathParameters(params: any): void
+    +resetResponse(): void
+    +write(output: any, encoding?: string, cb?: (error: Error) => void): boolean
+    +setHeader(header: any, value: any): void
+    +writeHead(statusCode: number, headers?: http.OutgoingHttpHeaders): this
+    +redirect(url: string): void
+    +cookie(param: any, value: any, options?: any): void
+    +getResponseCookies(): Map<string, Cookie>
+    +addAsyncRequest(promise: any): void
+    +isEnded(): Promise<any>
+    +status(code: number): this
+    +json(obj: any): this
+    +end(): Promise<any>
+    +getRequestBody(sanitizedOptions?: any): any
+    +getResponseBody(): any
+    +getRequest(): http.IncomingMessage
+    +getService(name: any): T
+    +getStream(): any
+    +getCurrentUser(): Promise<T>
+    +getCurrentUserId(): string
+    +getExecutor(): Service
+    +execute(): Promise<unknown>
+    +getWebda(): Core
+    +getLocale(): string
+    +setRoute(route: any): void
+    +getRoute(): any
+    +setExecutor(executor: any): void
+    +logIn(): void
+    +log(level: WorkerLogLevel, args: any[]): void
+    +newSession(): SessionCookie
+    +init(): Promise<void>
+    +emitError(err: any): void
+    #{static} __globalContext: Context
+    +{static} getGlobalContext(): Context
+    +{static} setGlobalContext(ctx: Context): void
+}
+class StoreSessionContext extends Context
+class CookieSessionContext extends Context
+abstract class Queue extends Service {
+    +_timeout: any
+    +_interrupt: boolean
+    +callback: Function
+    +pause: number
+    +{abstract} sendMessage(params: any): any
+    +{abstract} receiveMessage(): Promise<any>
+    +{abstract} deleteMessage(id: string): any
+    +{abstract} size(): Promise<number>
+    +_workerResume(): Promise<void>
+    +_workerReceiveMessage(): Promise<void>
+    +worker(callback: any): Promise<void>
+    +stop(): void
+}
+class AsyncEvent {
+    +service: Service
+    +type: string
+    +payload: any
+    +time: Date
+    +getMapper(): string
+    +{static} fromQueue(data: any): AsyncEvent
+}
+interface QueueMap
+class EventService extends Service {
+    +_callbacks: any
+    +_queues: QueueMap
+    +_defaultQueue: string
+    +_async: boolean
+    +init(): Promise<void>
+    +bindAsyncListener(service: any, event: any, callback: any, queue: any): void
+    +pushEvent(service: any, type: any, queue: any, payload: any): any
+    +_handleEvent(event: any): Promise<any[]>
+    +_handleEvents(events: any): void
+    +worker(queue: any): Promise<void>
+}
+abstract class Service {
+    +_webda: Core
+    +_name: string
+    +_params: any
+    +_createException: string
+    +_initTime: number
+    +_initException: any
+    +logger: Logger
+    +getParameters(): any
+    +getWebda(): Core
+    +resolve(): void
+    +_addRoute(url: string, methods: HttpMethodType[], executer: Function, openapi?: object, allowPath?: boolean): void
+    +initRoutes(): void
+    +toPublicJSON(object: any): string
+    +init(): Promise<void>
+    +normalizeParams(): void
+    +reinit(config: any): Promise<void>
+    +emitSync(event: any, data: any): Promise<any[]>
+    +onAsync(event: any, callback: any, queue?: string): void
+    +getService(service: string): T
+    +getName(): string
+    +__clean(): Promise<any>
+    +___cleanData(): Promise<any>
+    +log(level: any, args: any[]): void
+    +{static} getModda(): void
+}
+class Store<T extends CoreModel> extends Service implements ConfigurationProvider {
+    +_reverseMap: any[]
+    +_cascade: any[]
+    +_writeConditionField: string
+    +_model: CoreModelDefinition
+    +_exposeUrl: string
+    +_lastUpdateField: string
+    +_creationDateField: string
+    #_uuidField: string
+    +normalizeParams(): void
+    +getModel(): CoreModelDefinition
+    +getUuidField(): string
+    +init(): Promise<void>
+    +initRoutes(): void
+    +getUrl(): string
+    +initModel(object: any): T
+    +addReverseMap(prop: any, cascade: any, store: any): void
+    +isMapped(property: string): boolean
+    +_incrementAttribute(uid: any, prop: any, value: any, updateDate: Date): Promise<any>
+    +incrementAttribute(uid: any, prop: any, value: any): Promise<void | any[]>
+    +upsertItemToCollection(uid: any, prop: any, item: any, index?: any, itemWriteCondition?: any, itemWriteConditionField?: any): Promise<void>
+    +_handleMapFromPartial(uid: string, updateDate: Date, prop?: string): Promise<void>
+    +_upsertItemToCollection(uid: any, prop: any, item: any, index: any, itemWriteCondition: any, itemWriteConditionField: any, updateDate: Date): Promise<any>
+    +deleteItemFromCollection(uid: any, prop: any, index: any, itemWriteCondition: any, itemWriteConditionField: any): Promise<void>
+    +_deleteItemFromCollection(uid: any, prop: any, index: any, itemWriteCondition: any, itemWriteConditionField: any, updateDate: Date): Promise<any>
+    +createIndex(): Promise<void>
+    +initMap(map: any): void
+    +toString(): string
+    +generateUid(): any
+    +save(object: any, ctx?: Context): Promise<any>
+    +_save(object: CoreModel): Promise<any>
+    +patch(object: any, reverseMap?: boolean): Promise<any>
+    +update(object: any, reverseMap?: boolean, partial?: boolean): Promise<any>
+    +getMapper(map: any, uuid: any): number
+    +removeMapper(map: any, uuid: any): boolean
+    +_handleUpdatedMap(object: any, map: any, mapped: any, store: any, updates: any): Promise<any>
+    +_handleUpdatedMapTransferOut(object: any, map: any, mapped: any, store: any, updates: any): any
+    +_handleUpdatedMapTransferIn(object: any, map: any, store: any, updates: any): any
+    +_handleUpdatedMapMapper(object: any, map: any, mapped: any, store: any, updates: any): any
+    +_handleDeletedMap(object: any, map: any, mapped: any, store: any): any
+    +_handleCreatedMap(object: any, map: any, mapped: any, store: any): any
+    +_handleMapProperty(store: any, object: any, property: any, updates: any): Promise<any>
+    +_removeAttribute(uuid: string, attribute: string): Promise<void>
+    +removeAttribute(uuid: string, attribute: string): Promise<void>
+    +handleIndex(object: CoreModel, updates: string | object): Promise<void>
+    +handleMap(object: any, map: any, updates: any): Promise<any[]>
+    +_update(object: any, uid: any, writeCondition?: any): Promise<any>
+    +_patch(object: any, uid: string, writeCondition?: any): Promise<any>
+    +cascadeDelete(obj: any, uuid: string): Promise<any>
+    +delete(uid: any, sync?: boolean): Promise<void>
+    +exists(uid: string): Promise<boolean>
+    +_delete(uid: string, writeCondition?: any): Promise<void>
+    +_get(uid: string): Promise<any>
+    +getAll(list?: any): Promise<T[]>
+    +canTriggerConfiguration(id: string, callback: () => void): boolean
+    +getConfiguration(id: string): Promise<Map<string, any>>
+    +get(uid: string, ctx?: Context): Promise<T>
+    +find(request?: any, offset?: number, limit?: number): Promise<any>
+    +_find(request: any, offset: any, limit: any): Promise<void>
+    +httpCreate(ctx: Context): Promise<void>
+    +httpAction(ctx: Context): Promise<void>
+    +httpGlobalAction(ctx: Context): Promise<void>
+    +httpUpdate(ctx: Context): Promise<void>
+    +httpGet(ctx: Context): Promise<void>
+    +httpRoute(ctx: Context): Promise<void>
+}
+interface CoreModelDefinition {
+    +getActions(): any
+    +getUuidField(): string
+}
+class CoreModelMapper<T extends CoreModel> {
+    -__store: Store<CoreModel>
+    +load(): Promise<T>
+}
+class CoreModel extends OwnerPolicy {
+    +__ctx: Context
+    +__store: Store<CoreModel>
+    +_creationDate: Date
+    +lastUpdate: Date
+    +_lastUpdate: Date
+    +__deleted: boolean
+    +isAttached(): boolean
+    +attach(store: Store<CoreModel>): void
+    +getAvailableActions(): {}
+    +load(raw: any, secure?: boolean): void
+    +setContext(ctx: Context): void
+    +getContext(): Context
+    +getStore(): Store<CoreModel>
+    +refresh(): Promise<CoreModel>
+    +delete(): Promise<void>
+    +save(): Promise<this>
+    +update(changes: any): Promise<void>
+    +_getSchema(): any
+    +validate(ctx: any, updates?: any): Promise<boolean>
+    +generateUid(object?: any): string
+    +_jsonFilter(key: any, value: any): any
+    +toStoredJSON(stringify?: boolean): any
+    +getService(service: any): T
+    +_toJSON(secure: any): any
+    +toJSON(): any
+    +_onDelete(): Promise<void>
+    +_onDeleted(): Promise<void>
+    +_onGet(): Promise<void>
+    +_onSave(): Promise<void>
+    +_onSaved(): Promise<void>
+    +_onUpdate(updates: any): Promise<void>
+    +_onUpdated(): Promise<void>
+    +{static} jsonExcludes: string[]
+    +{static} getActions(): {}
+    +{static} getUuidField(): string | string[]
+}
+interface DeploymentUnit {
+    +name: string
+    +type: string
+}
+interface default {
+    +parameters: any
+    +resources: any
+    +services: any
+    +uuid: string
+    +units: DeploymentUnit[]
+}
+class IdentTokens {
+    +refresh: string
+    +access: string
+}
+class Ident extends CoreModel {
+    +_type: string
+    +uid: string
+    +__profile: any
+    +__tokens: IdentTokens
+    +_lastUsed: Date
+    +_user: string
+    +__new: boolean
+    +_failedLogin: number
+    +_lastValidationEmail: number
+    +_validation: Date
+    +getUser(): string
+    +setUser(user: any): void
+    +getType(): string
+    +setType(type: any): void
+    +{static} init(type: string, uid: string, accessToken?: string, refreshToken?: string, profile?: object): Ident
+}
+interface QueueMap
+class MemoryQueue extends Queue {
+    -_queue: QueueMap
+    +init(): Promise<void>
+    +size(): Promise<number>
+    +sendMessage(params: any): Promise<void>
+    +receiveMessage(): Promise<any[]>
+    +deleteMessage(receipt: any): Promise<void>
+    +__clean(): Promise<void>
+    +{static} getModda(): ModdaDefinition
+}
+interface IEmailTemplate {
+    +renderAll(file: string, options: any): any
+}
+interface TemplatesMap
+class Mailer extends Service {
+    +_transporter: any
+    +_templates: TemplatesMap
+    +init(): Promise<void>
+    +_getTemplate(name: any): IEmailTemplate
+    +send(options: any, callback?: any): Promise<any>
+    +{static} getModda(): ModdaDefinition
+}
+interface PasswordVerifier extends Service {
+    +validate(password: string): Promise<void>
+}
+class PasswordRecoveryInfos {
+    +expire: number
+    +token: string
+    +login: string
+}
+class Authentication extends Service {
+    +_identsStore: Store<Ident>
+    +_usersStore: Store<User>
+    +_passwordVerifier: PasswordVerifier
+    +_emailDelay: number
+    +providers: Set<string>
+    +initRoutes(): void
+    +getUrl(): any
+    +setIdents(identStore: any): void
+    +setUsers(userStore: any): void
+    +init(): Promise<void>
+    +addProvider(name: string): void
+    +_sendEmailValidation(ctx: any): Promise<void>
+    +_getMe(ctx: Context): Promise<void>
+    +_listAuthentications(ctx: Context): Promise<void>
+    +_registerNewEmail(ctx: any): Promise<void>
+    +onIdentLogin(ctx: Context, provider: string, identId: string, profile: any): Promise<void>
+    +registerUser(ctx: Context, datas: any, user?: any): Promise<any>
+    +getPasswordRecoveryInfos(uuid: string | User, interval?: number): Promise<PasswordRecoveryInfos>
+    +_passwordRecoveryEmail(ctx: Context): Promise<void>
+    +_verifyPassword(password: string): Promise<void> | Promise<boolean>
+    +_passwordRecovery(ctx: Context): Promise<void>
+    +_handleEmailCallback(ctx: Context): Promise<void>
+    +sendRecoveryEmail(ctx: Context, user: any, email: string): Promise<any>
+    +sendValidationEmail(ctx: Context, email: string): Promise<any>
+    +hashInfo(info: string): string
+    +checkPassword(hash: any, pass: any): boolean
+    +hashPassword(pass: string): string
+    +logout(ctx: Context): Promise<void>
+    +login(ctx: Context, user: any, ident: any): Promise<any[]>
+    +getMailMan(): Mailer
+    #handleLogin(ctx: Context, ident: Ident): Promise<void>
+    +_handleEmail(ctx: Context): Promise<any>
+    +generateEmailValidationToken(user: string, email: string): string
+    +{static} getModda(): ModdaDefinition
+}
+class BinaryMap {
+    +__ctx: Context
+    +__store: Binary
+    +get(): Promise<ReadableStream<any>>
+    +downloadTo(filename: string): Promise<unknown>
+    +setContext(ctx: Context): void
+}
+class Binary extends Service {
+    +_lowercaseMaps: any
+    +_url: string
+    +store(targetStore: any, object: any, property: any, file: any, metadatas: any, index?: string): Promise<any>
+    +getUsageCount(hash: any): Promise<number>
+    +update(targetStore: any, object: any, property: any, index: any, file: any, metadatas: any): Promise<CoreModel>
+    +delete(targetStore: any, object: any, property: any, index: any): Promise<CoreModel>
+    +get(info: any): Promise<ReadableStream<any>>
+    +downloadTo(info: any, filename: any): Promise<unknown>
+    +init(): Promise<void>
+    +_getUrl(info: any, ctx: Context): void
+    +_get(info: any): ReadableStream<any>
+    +initMap(map: any): void
+    +initModel(obj: any): BinaryMap
+    +_getHashes(buffer: any): any
+    +_prepareInput(file: any): void
+    +_checkMap(name: any, property: any): void
+    +_validChallenge(challenge: any): boolean
+    +challenge(hash: any, challenge: any): boolean
+    +updateSuccess(targetStore: any, object: any, property: any, index: any, file: any, metadatas: any): Promise<any>
+    +cascadeDelete(info: any, uuid: any): void
+    +deleteSuccess(targetStore: any, object: any, property: any, index: any): any
+    +_getFile(req: any): any
+    +initRoutes(): void
+    +_initRoutes(): boolean
+    +httpPost(ctx: Context): Promise<void>
+    +_verifyMapAndStore(ctx: Context): Store<CoreModel>
+    +putRedirectUrl(ctx: Context): Promise<string>
+    +storeBinary(ctx: Context): Promise<void>
+    +httpChallenge(ctx: Context): Promise<void>
+    +httpRoute(ctx: Context): Promise<void>
+}
+interface ConfigurationProvider {
+    +getConfiguration(id: string): Promise<Map<string, any>>
+    +canTriggerConfiguration(id: string, callback: () => void): boolean
+}
+class default extends Service {
+    #_configuration: any
+    #_nextCheck: number
+    #_sourceService: any
+    #_sourceId: string
+    -_interval: number | NodeJS.Timer
+    #watches: any[]
+    #configuration: any
+    +init(): Promise<void>
+    +watch(path: string, callback: (update: any) => void | Promise<void>, defaultValue?: any): void
+    +stop(): void
+    +getConfiguration(): any
+    +reinit(config: any): Promise<void>
+    +_loadConfiguration(): Promise<{ [key: string]: any; }>
+    +_checkUpdate(): Promise<void>
+    +_updateNextCheck(): void
+}
+class CronDefinition {
+    +cron: string
+    +description: string
+    +args: any[]
+    +method: string
+    +serviceName: string
+    +toString(): string
+}
+class CronService extends Service {
+    +enable: boolean
+    +crons: { cron: string; description?: string; serviceName?: string; method?: string; context?: string; args?: any[]; cb?: () => void; }[]
+    -_scanned: boolean
+    +addAnnotations(): void
+    +getCrontab(): { cron: string; description?: string; serviceName?: string; method?: string; context?: string; args?: any[]; cb?: () => void; }[]
+    +work(annotations?: string): Promise<void>
+    +run(annotations?: boolean): Promise<unknown>
+    +schedule(cron: string, cb: () => any, description?: string): void
+    +{static} Annotation(cron: string, description?: string, args: any[]): (target: any, property: string, descriptor: PropertyDescriptor) => void
+    +{static} loadAnnotations(services: any): CronDefinition[]
+}
+class FileConfigurationService extends ConfigurationService {
+    +init(): Promise<void>
+    +stop(): void
+    +_loadConfiguration(): Promise<{ [key: string]: any; }>
+}
+class KubernetesConfigurationService extends ConfigurationService {
+    +init(): Promise<void>
+    +stop(): void
+    +_loadConfiguration(): Promise<{ [key: string]: any; }>
+}
+abstract class OAuthService extends Service implements RequestFilter {
+    +_authenticationService: Authentication
+    +checkRequest(context: Context): Promise<boolean>
+    +initRoutes(): void
+    +_scope(ctx: Context): void
+    +hasToken(): boolean
+    +_redirect(ctx: Context): void
+    +generateAuthUrl(redirect_uri: string, state: string): string
+    +_token(context: Context): Promise<void>
+    +_callback(ctx: Context): Promise<void>
+    +handleReturn(ctx: Context, identId: string, profile: any): Promise<void>
+    +{abstract} getDefaultUrl(): string
+    +{abstract} getCallbackReferer(): RegExp[]
+    +{abstract} getName(): string
+}
+class default extends Service {
+    +sent: any[]
+    +send(options: any, callback?: any): void
+    +{static} getModda(): ModdaDefinition
+}
+class FileBinary extends Binary {
+    +_initRoutes(): boolean
+    +_get(info: any): ReadableStream<any>
+    +_getPath(hash: any, postfix?: any): any
+    +_touch(path: any): void
+    +getPutUrl(ctx: Context): string
+    +putRedirectUrl(ctx: Context): Promise<string>
+    +storeBinary(ctx: Context): Promise<void>
+    +getUsageCount(hash: any): Promise<number>
+    +_cleanHash(hash: any): void
+    +_cleanUsage(hash: any, uuid: any): void
+    +delete(targetStore: any, object: any, property: any, index: any): any
+    +challenge(hash: any, challenge: any): boolean
+    +cascadeDelete(info: any, uuid: any): void
+    +_store(file: any, targetStore: any, object: any): void
+    +store(targetStore: any, object: any, property: any, file: any, metadatas: any, index?: string): Promise<any>
+    +update(targetStore: any, object: any, property: any, index: any, file: any, metadatas: any): Promise<any>
+    +___cleanData(): Promise<void>
+    +{static} getModda(): ModdaDefinition
+}
+class default extends Service {
+    +_resolved: string
+    +normalizeParams(): void
+    +initRoutes(): void
+    +_redirect(ctx: Context): void
+    +_serve(ctx: Context): void
+}
+interface StorageMap
+class MemoryStore<T extends CoreModel> extends Store {
+    +storage: StorageMap
+    +init(): Promise<void>
+    +exists(uid: any): Promise<boolean>
+    +_find(request: any, offset: any, limit: any): Promise<any>
+    +_save(object: any): Promise<T>
+    +_delete(uid: any): Promise<void>
+    +_patch(object: any, uuid: any): Promise<T>
+    +_update(object: any, uuid: any): Promise<T>
+    +getAll(uids: any): Promise<any>
+    +_getSync(uid: any): T
+    +_removeAttribute(uuid: string, attribute: string): Promise<void>
+    +_get(uid: any): Promise<T>
+    +__clean(): Promise<void>
+    +_incrementAttribute(uid: any, prop: any, value: any, updateDate: Date): Promise<T>
+    +_upsertItemToCollection(uid: any, prop: any, item: any, index: any, itemWriteCondition: any, itemWriteConditionField: any, updateDate: Date): Promise<void>
+    +_deleteItemFromCollection(uid: any, prop: any, index: any, itemWriteCondition: any, itemWriteConditionField: any, updateDate: Date): Promise<T>
+    +{static} getModda(): ModdaDefinition
+}
+class AbstractDeployer
+class MemoryLoggerService extends Service {
+    +workoutLogger: MemoryLogger
+}
+class ConsoleLoggerService extends Service {
+    +workoutLogger: ConsoleLogger
+}
+class FileLoggerService extends Service {
+    +workoutLogger: ConsoleLogger
+}
+class Logger implements WorkoutLogger {
+    +output: WorkerOutput
+    +clazz: string
+    +log(level: WorkerLogLevel, args: any[]): void
+    +logWithContext(level: WorkerLogLevel, context: any, args: any[]): void
+    +logGroupOpen(name: string): void
+    +logGroupClose(): void
+    +logProgressStart(uid: string, total: number, title?: string): void
+    +logProgressIncrement(inc?: number, uid?: string): void
+    +logProgressUpdate(current: number, uid?: string, title?: string): void
+    +logTitle(title: string): void
+}
+interface ServiceConstructor<T extends Service> {
+    +getModda(): any
+}
+class Application {
+    #appPath: string
+    #baseConfiguration: Configuration
+    #currentDeployment: string
+    #cachedModules: CachedModule
+    #appModule: Module
+    #_loaded: string[]
+    #deployers: { [key: string]: any; }
+    #services: { [key: string]: ServiceConstructor<Service>; }
+    #models: { [key: string]: any; }
+    #compiled: boolean
+    #logger: WorkerOutput
+    #packageDescription: any
+    #packageWebda: any
+    #namespace: string
+    #workspacesPath: string
+    +loadPackageInfos(): void
+    +getPackageWebda(): any
+    +getPackageDescription(): any
+    +preventCompilation(compile: boolean): void
+    +migrateV0Config(config: any): Configuration
+    +migrateV1Config(config: ConfigurationV1): Configuration
+    +log(level: WorkerLogLevel, args: any[]): void
+    +getWorkerOutput(): WorkerOutput
+    +getAppPath(subpath?: string): string
+    +addService(name: string, service: ServiceConstructor<Service>): void
+    +getService(name: any): ServiceConstructor<Service>
+    +getServices(): { [key: string]: ServiceConstructor<Service>; }
+    +getModel(name: string): any
+    +getModels(): { [key: string]: Context | CoreModelDefinition; }
+    +getDeployers(): { [key: string]: ServiceConstructor<Service>; }
+    +addModel(name: string, model: any): void
+    +addDeployer(name: string, model: any): void
+    +hasDeployment(deploymentName: string): boolean
+    +getWebdaVersion(): string
+    +getDeployment(deploymentName?: string): Deployment
+    +getConfiguration(deploymentName?: string): Configuration
+    +getCurrentConfiguration(): Configuration
+    +setCurrentDeployment(deployment: string): void
+    +getCurrentDeployment(): string
+    +isTypescript(): boolean
+    +compile(): void
+    +loadModules(): void
+    +getModules(): CachedModule
+    +generateModule(): void
+    +resolveRequire(info: string): any
+    +loadLocalModule(): void
+    +loadModule(info: Module, parent?: string): void
+    +completeNamespace(info?: string): string
+    +extends(obj: any, className: any): boolean
+    #loadJavascriptFile(absolutePath: string): void
+    +getPackagesLocations(): string[]
+}
+interface RouteInfo {
+    +methods: HttpMethodType[]
+    +executor: string
+    +_method?: string | Function
+    +allowPath?: boolean
+    +openapi?: any
+    +_uriTemplateParse?: { fromUri: (uri: string) => any; varNames: any; }
+}
+class Router {
+    #routes: Map<string, RouteInfo[]>
+    #initiated: boolean
+    #pathMap: { url: string; config: RouteInfo; }[]
+    #webda: Core
+    +addRoute(url: string, info: RouteInfo): void
+    +removeRoute(url: any): void
+    +remapRoutes(): void
+    #comparePath(a: any, b: any): number
+    #initURITemplates(config: any): void
+    +getRouteMethodsFromUrl(url: any): HttpMethodType[]
+    +getRouteFromUrl(ctx: Context, method: HttpMethodType, url: string): any
+    +completeOpenAPI(openapi: OpenAPIV3.Document, skipHidden?: boolean): void
+}
+class WebdaError extends Error {
+    +code: string
+    +getCode(): string
+}
+interface ModdaDefinition {
+    +uuid: string
+    +label: string
+    +description: string
+    +documentation?: string
+    +category?: "services" | "models" | "deployers"
+    +logo: string
+    +configuration: { schema?: JSONSchema6 | string; widget?: any; }
+}
+interface Module {
+    +services?: { [key: string]: string; }
+    +models?: { [key: string]: string; }
+    +deployers?: { [key: string]: string; }
+}
+interface CachedModule extends Module {
+    +sources?: string[]
+}
+interface ConfigurationV1 {
+    +version: number
+    +cachedModules?: CachedModule
+    +models?: any
+    +services?: any
+}
+interface Configuration {
+    +version: number
+    +cachedModules?: CachedModule
+    +module: Module
+    +services?: any
+    +parameters?: { [key: string]: any; cookie?: {    sameSite: "None" | "Strict" | "Lax";    domain: string;    maxAge: number;    path: string;}; }
+    +openapi?: any
+}
+interface RequestFilter<T extends Context> {
+    +checkRequest(context: T): Promise<boolean>
+}
+class OriginFilter implements RequestFilter {
+    +origins: string[]
+    +checkRequest(context: Context): Promise<boolean>
+}
+class WebsiteOriginFilter implements RequestFilter {
+    +websites: string[]
+    +checkRequest(context: Context): Promise<boolean>
+}
+class Core {
+    #services: { [key: string]: Service; }
+    #application: Application
+    #router: Router
+    #_initiated: boolean
+    #failedServices: { [key: string]: any; }
+    #_init: Promise<void>
+    #configuration: Configuration
+    #_ajv: any
+    #_ajvSchemas: any
+    #_currentExecutor: any
+    #_configFile: string
+    #_initPromise: Promise<void>
+    #_initTime: number
+    #logger: Logger
+    #_requestFilters: RequestFilter<Context>[]
+    -workerOutput: WorkerOutput
+    +getAppPath(subpath?: string): string
+    +reinitResolvedRoutes(): void
+    +getModules(): CachedModule
+    +getDeployers(): { [key: string]: ServiceConstructor<Service>; }
+    +getApplication(): Application
+    +getWorkerOutput(): WorkerOutput
+    +init(): Promise<void>
+    +registerRequestFilter(filter: RequestFilter<Context>): void
+    +sandbox(executor: any, code: any): any
+    +validate(object: any, schema: any): any
+    +validationLastErrors(): any
+    +getVersion(): string
+    +getLocales(): string[]
+    +getLogger(clazz: string | Service): Logger
+    +addRoute(url: string, info: RouteInfo): void
+    +removeRoute(url: string): void
+    +getRouter(): Router
+    +getService(name?: string): T
+    +getServices(): { [key: string]: Service; }
+    +getServicesImplementations(type?: any): { [key: string]: Service; }
+    +getConfiguration(): Configuration
+    +getStores(): { [key: string]: Service; }
+    +getModels(): { [key: string]: CoreModelDefinition; }
+    +registerModel(name: string, clazz: any): void
+    +getModel(name: any): any
+    +getSecret(): string
+    +getSalt(): string
+    +updateContextWithRoute(ctx: Context): boolean
+    +flushHeaders(context: Context): void
+    +flush(context: Context): void
+    +isDebug(): boolean
+    +getGlobalParams(): any
+    +reinit(updates: any): Promise<void>
+    #getServiceParams(service: string): any
+    #createServices(excludes?: string[]): void
+    #_getSetters(obj: any): any[]
+    #autoConnectServices(): void
+    #jsonFilter(key: string, value: any): any
+    #initStatics(): void
+    +initBeanRoutes(serviceBean: Service): void
+    +newContext(httpContext: HttpContext, stream?: any, noInit?: boolean): Promise<T>
+    +toPublicJSON(object: any): string
+    +emitSync(event: any, data: any[]): Promise<any[]>
+    +log(level: WorkerLogLevel, args: any[]): void
+    +parameter(name: string): any
+    #checkRequest(ctx: Context): Promise<boolean>
+    +exportOpenAPI(skipHidden?: boolean): OpenAPIV3.Document
+}
+class FileStore<T extends CoreModel> extends Store {
+    +file(uid: any): string
+    +exists(uid: any): Promise<boolean>
+    +_find(request: any, offset: any, limit: any): Promise<any>
+    +_save(object: any): Promise<any>
+    +_upsertItemToCollection(uid: any, prop: any, item: any, index: any, itemWriteCondition: any, itemWriteConditionField: any, updateDate: Date): Promise<void>
+    +_removeAttribute(uuid: string, attribute: string): Promise<void>
+    +_deleteItemFromCollection(uid: any, prop: any, index: any, itemWriteCondition: any, itemWriteConditionField: any, updateDate: Date): Promise<any>
+    +_delete(uid: any, writeCondition: any): Promise<void>
+    +_patch(object: any, uid: any, writeCondition: any): Promise<any>
+    +_update(object: any, uid: any, writeCondition?: any): Promise<any>
+    +getAll(uids: any): Promise<any>
+    +_get(uid: string): Promise<any>
+    +_incrementAttribute(uid: any, prop: any, value: any, updateDate: Date): Promise<any>
+    +__clean(): Promise<void>
+    +{static} getModda(): ModdaDefinition
+}
+@enduml
+`;
+        document.getElementsByTagName("textarea")[0].value = puml;
+        viewDiagram();
+      }
+
+      function setSimple() {
+        const puml = `
+@startuml
+interface Licensed {
+    +plateId: string
+}
+abstract class Vehicle {
+    +capacity: number
+    +weight: number
+    +moveTo(x: Number, y: Number): void
+    +{abstract} hasWheel(): boolean
+}
+class Car extends Vehicle implements Licensed {
+    +plateId: string
+    +hasWheel(): boolean
+}
+class DirtBike {
+    +hasWheel(): boolean
+}
+class Plane extends Vehicle implements Licensed {
+    +plateId: string
+    +hasWheel(): boolean
+}
+@enduml
+`;
+        document.getElementsByTagName("textarea")[0].value = puml;
+        viewDiagram();
+      }
+      function exportPNG() {
+        viewDiagram();
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("width", window.plantumljs.graph.width);
+        canvas.setAttribute("height", window.plantumljs.graph.height);
+
+        var DOMURL = window.URL || window.webkitURL || window;
+
+        var img = new Image();
+        var url = getSvgAsUrl();
+
+        img.onload = function () {
+          console.log(img.width, img.height);
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          DOMURL.revokeObjectURL(url);
+          var png_img = canvas.toDataURL("image/png");
+          downloadUrl(png_img, "png");
+        };
+
+        img.src = url;
+      }
+
+      function downloadUrl(url, type) {
+        if (!url) {
+          url = getSvgAsUrl();
+        }
+        if (!type) {
+          type = "svg";
+        }
+        var downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = "tplantviewer." + type;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+
+      function getSvgAsUrl() {
+        const svgEl = document.getElementsByTagName("svg")[0];
+        // Based on https://stackoverflow.com/questions/23218174/how-do-i-save-export-an-svg-file-after-creating-an-svg-with-d3-js-ie-safari-an
+        svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        var svgData = svgEl.outerHTML.replace(/&nbsp;/g, " ");
+        var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+        var svgBlob = new Blob([preface, svgData], { type: "image/svg+xml;charset=utf-8" });
+        return URL.createObjectURL(svgBlob);
+      }
+
+      function exportSVG() {
+        viewDiagram();
+        downloadUrl(getSvgAsUrl());
+      }
+    </script>
+  </body>
+</html>
