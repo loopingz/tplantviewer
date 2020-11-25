@@ -1,0 +1,31 @@
+name: "Viewer update"
+
+on:
+  push:
+    branches: [main]
+    paths:
+     - 'dist/**'
+     - '.github/workflows/viewer.yml'
+
+jobs:
+  deploy:
+    name: Deploy viewer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository 🛎️
+        uses: actions/checkout@v2.3.1
+
+      - name: Build library 🔧
+        run: yarn build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: dist # The folder the action should deploy.
+          CLEAN: true # Automatically remove deleted files from the deploy branch
+          GIT_CONFIG_NAME: Github Actions
+          GIT_CONFIG_EMAIL: actions@github.com
+
